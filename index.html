@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StarPath Thailand — Dark Sky Decision Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/shared.css"/>
+  <link rel="stylesheet" href="css/landing.css"/>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<div class="page">
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav-brand" href="index.html">
+    <div class="nav-orb">✦</div>
+    <span class="nav-name">Star<span>Path</span> Thailand</span>
+  </a>
+  <ul class="nav-links">
+    <li><a onclick="scrollTo2('features')">Features</a></li>
+    <li><a onclick="scrollTo2('scores')">Scores</a></li>
+    <li><a onclick="scrollTo2('triggers')">Alerts</a></li>
+    <li><a onclick="scrollTo2('how')">How it works</a></li>
+  </ul>
+  <a class="nav-map-btn" href="map.html">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+      <span>Open Map</span>
+    </a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-badge"><div class="badge-dot"></div><span>63 NARIT-registered dark sky sites</span></div>
+  <h1>Plan your perfect</h1>
+  <h1><em>stargazing night</em></h1>
+  <p class="hero-sub">Thailand's first decision-support platform for dark sky tourism. Real-time observing scores, cloud forecasts, moon phases, and light pollution — all unified in one place.</p>
+  <div class="hero-btns">
+    <a class="btn-primary" href="map.html">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+      <span>Explore the Interactive Map</span>
+    </a>
+    <button class="btn-ghost" onclick="scrollTo2('how')">How it works</button>
+  </div>
+  <div class="hero-stats">
+    <div><div class="stat-num">63</div><div class="stat-label">Dark sky sites</div></div>
+    <div><div class="stat-num">7-night</div><div class="stat-label">Forecast window</div></div>
+    <div><div class="stat-num">6</div><div class="stat-label">Thai regions</div></div>
+    <div><div class="stat-num">Free</div><div class="stat-label">Always open</div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="eyebrow">Core features</div>
+  <div class="sec-title">Six tools, one clear night</div>
+  <p class="sec-sub">StarPath unifies the data astrophotographers need — light pollution, lunar mechanics, and live weather — into a single decision platform.</p>
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(139,127,248,.15);">⭐</div>
+      <div class="feat-name">Nightly observing score</div>
+      <p class="feat-desc">Composite 0–100 score from moon illumination, rise/set timing, cloud cover, and Bortle class darkness. Weighted for astrophotography.</p>
+      <span class="feat-tag" style="background:rgba(139,127,248,.15);color:var(--purple-l);">Updated hourly</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(55,138,221,.15);">☁️</div>
+      <div class="feat-name">Astronomical cloud forecast</div>
+      <p class="feat-desc">Open-Meteo hourly forecasts including precipitable water vapour and low, mid, and high cloud layers — far more detailed than standard weather apps.</p>
+      <span class="feat-tag" style="background:rgba(55,138,221,.15);color:#7BAEE8;">7-day window</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:var(--amber-dim);">🌙</div>
+      <div class="feat-name">Moon phase planner</div>
+      <p class="feat-desc">Monthly calendar highlighting the dark window — the 8–10 day band around new moon when Milky Way photography is viable. Plan trips weeks ahead.</p>
+      <span class="feat-tag" style="background:var(--amber-dim);color:var(--amber);">Dark window alert</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:var(--hi-dim);">🌌</div>
+      <div class="feat-name">Milky Way visibility guide</div>
+      <p class="feat-desc">From Thailand's latitude (~15°N), the galactic core is visible February–October, peaking April–August. Full seasonal calendar per site.</p>
+      <span class="feat-tag" style="background:var(--hi-dim);color:var(--hi);">Feb – Oct season</span>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon" style="background:var(--lo-dim);">📍</div>
+      <div class="feat-name">Light pollution layer</div>
+      <p class="feat-desc">All 63 NARIT-registered dark sky sites across 6 regions with Bortle class and Sky Quality Meter ratings where available.</p>
+      <span class="feat-tag" style="background:var(--lo-dim);color:var(--lo);">Bortle 1–9 scale</span>
+    </div>
+    <div class="feat-card star">
+      <div class="feat-icon" style="background:rgba(139,127,248,.2);">✨</div>
+      <div class="feat-name">Perfect condition trigger</div>
+      <p class="feat-desc">Fires only when all three critical conditions align — low light pollution, dark moon phase, and clear skies. The ultimate astrophotography night.</p>
+      <span class="feat-tag" style="background:var(--purple-dim);color:var(--purple-l);">Rare event alert</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- MAP CTA -->
+<div class="map-cta-band">
+  <div class="map-cta-inner">
+    <div class="map-cta-text">
+      <div class="cta-title">Live WebGIS map — all 63 sites, tonight's scores</div>
+      <div class="cta-sub">Click any site for its 7-night forecast, Bortle rating, moon data, and best months. Change the viewing date and every score updates instantly.</div>
+      <div style="margin-top:1.5rem;">
+        <a class="btn-primary" href="map.html">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+          <span>Open Interactive Map</span>
+        </a>
+      </div>
+    </div>
+    <div class="map-cta-preview" id="cta-stats"></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- SCORES + MOON -->
+<div class="full-band" id="scores">
+<section class="section">
+  <div class="eyebrow">Live preview</div>
+  <div class="sec-title">Tonight's observing scores</div>
+  <p class="sec-sub">Composite scores weighted by moon phase (40%), cloud cover (38%), and Bortle class darkness (22%). Top 8 sites shown.</p>
+  <div class="two-col">
+    <div>
+      <div class="widget">
+        <div class="widget-hdr">
+          <div class="widget-ttl">Site ranking · tonight</div>
+          <div class="live-row"><div class="live-dot"></div><span>Live</span> <span class="score-data-badge" id="score-data-badge" style="color:var(--amber)">⟳ Loading…</span></div>
+        </div>
+        <div class="score-rows" id="score-rows"></div>
+      </div>
+    </div>
+    <div>
+      <div class="widget">
+        <div class="moon-hdr">
+          <div class="moon-lbl">Moon phase calendar</div>
+          <div class="moon-month-txt" id="cal-month">—</div>
+        </div>
+        <div class="moon-cal" id="moon-cal">
+          <div class="mc-lbl">Su</div><div class="mc-lbl">Mo</div><div class="mc-lbl">Tu</div>
+          <div class="mc-lbl">We</div><div class="mc-lbl">Th</div><div class="mc-lbl">Fr</div><div class="mc-lbl">Sa</div>
+        </div>
+        <div class="moon-leg">
+          <div class="ml-item"><div class="ml-dot" style="background:var(--purple);"></div><span>New moon</span></div>
+          <div class="ml-item"><div class="ml-dot" style="background:var(--purple-dim);border:1px solid var(--bdr2);"></div><span>Dark window</span></div>
+          <div class="ml-item"><div class="ml-dot" style="background:rgba(252,211,77,.45);"></div><span>Full moon</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<div class="divider"></div>
+
+<!-- MILKY WAY -->
+<section class="section">
+  <div class="eyebrow">Seasonal guide</div>
+  <div class="sec-title">Milky Way visibility · Thailand 15°N</div>
+  <p class="sec-sub">The galactic core is visible for 9 months from Thailand. Peak season runs April through August when the core rises highest in the southern sky.</p>
+  <div class="widget">
+    <div class="mw-grid" id="mw-grid"></div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;">
+      <div class="ml-item"><div class="ml-dot" style="background:var(--purple);width:9px;height:9px;border-radius:2px;"></div><span class="ml-item" style="font-size:12px;color:var(--t2);">Peak season</span></div>
+      <div class="ml-item"><div class="ml-dot" style="background:rgba(139,127,248,.4);width:9px;height:9px;border-radius:2px;"></div><span class="ml-item" style="font-size:12px;color:var(--t2);">Visible</span></div>
+      <div class="ml-item"><div class="ml-dot" style="background:rgba(255,255,255,.05);width:9px;height:9px;border-radius:2px;border:1px solid var(--bdr2);"></div><span class="ml-item" style="font-size:12px;color:var(--t2);">Not visible</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- TRIGGERS -->
+<div class="full-band" id="triggers">
+<section class="section">
+  <div class="eyebrow">Notification triggers</div>
+  <div class="sec-title">Get alerted when it matters</div>
+  <p class="sec-sub">Enable smart alerts for each condition. StarPath monitors all 63 sites and notifies you the moment conditions align.</p>
+  <div class="two-col">
+    <div class="trg-grid">
+      <div class="trg-card"><div class="trg-ico" style="background:var(--purple-dim);">⭐</div><div class="trg-info"><div class="trg-name">Observing score</div><div class="trg-desc">Alert when composite score exceeds your threshold</div></div><div class="trg-meta"><div class="trg-freq">Daily · score ≥ 70</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div></div>
+      <div class="trg-card"><div class="trg-ico" style="background:rgba(55,138,221,.15);">☁️</div><div class="trg-info"><div class="trg-name">Cloud forecast</div><div class="trg-desc">Alert when sky clears at your selected site</div></div><div class="trg-meta"><div class="trg-freq">Hourly · &lt;20% cloud</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div></div>
+      <div class="trg-card"><div class="trg-ico" style="background:var(--amber-dim);">🌙</div><div class="trg-info"><div class="trg-name">Moon phase planner</div><div class="trg-desc">Highlights best low-moon nights daily</div></div><div class="trg-meta"><div class="trg-freq">Daily · new moon ±5d</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div></div>
+      <div class="trg-card"><div class="trg-ico" style="background:var(--hi-dim);">📍</div><div class="trg-info"><div class="trg-name">Light pollution map</div><div class="trg-desc">Uses GPS to suggest darker nearby locations</div></div><div class="trg-meta"><div class="trg-freq">On location change</div><div class="toggle" onclick="this.classList.toggle('on')"></div></div></div>
+      <div class="trg-card"><div class="trg-ico" style="background:rgba(200,90,200,.15);">🌌</div><div class="trg-info"><div class="trg-name">Milky Way visibility</div><div class="trg-desc">Notifies when the galactic core rises above horizon</div></div><div class="trg-meta"><div class="trg-freq">Feb – Oct window</div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div></div>
+    </div>
+    <div>
+      <div class="notif-w">
+        <div class="ntop"><div class="ntop-ttl"><div class="live-dot"></div><span>Live notification feed</span></div><span style="font-size:11px;color:var(--t3);">Tonight</span></div>
+        <div class="nitem"><div class="nicon" style="background:rgba(55,138,221,.15);">☁️</div><div><div class="nmsg">Sky clearing at Doi Inthanon</div><div class="ndtl">Cloud cover dropping to 12% after 22:00</div></div></div>
+        <div class="nitem"><div class="nicon" style="background:var(--amber-dim);">🌙</div><div><div class="nmsg">Dark window opens in 2 nights</div><div class="ndtl">Moon drops below 10% · Best window this month</div><div class="npill">Best window this month</div></div></div>
+        <div class="nitem"><div class="nicon" style="background:rgba(200,90,200,.15);">🌌</div><div><div class="nmsg">Milky Way core rises at 23:14</div><div class="ndtl">Peak altitude 42° · visible until 04:30</div></div></div>
+        <div class="nitem"><div class="nicon" style="background:var(--purple-dim);">⭐</div><div><div class="nmsg">Khao Yai score reached 74</div><div class="ndtl">Above your alert threshold of 70</div></div></div>
+      </div>
+      <div class="perfect-banner">
+        <div class="pb-ico">✨</div>
+        <div><div class="pb-ttl">Perfect stargazing night</div><div class="pb-dsc">Low pollution · dark moon · clear skies · all three aligned</div></div>
+        <div class="pb-pill">Trigger active</div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="eyebrow">How it works</div>
+  <div class="sec-title">Four steps to your best night</div>
+  <p class="sec-sub">No technical knowledge required — StarPath does the astronomy for you.</p>
+  <div class="steps-grid">
+    <div class="step-card"><div class="step-n">01</div><div class="step-ttl">Pick a site</div><p class="step-dsc">Browse all 63 NARIT-listed dark sky sites on the interactive map with Bortle class overlay and SQM ratings.</p></div>
+    <div class="step-card"><div class="step-n">02</div><div class="step-ttl">Check the window</div><p class="step-dsc">View the 7-night forecast and moon phase calendar to identify ideal dark nights weeks in advance.</p></div>
+    <div class="step-card"><div class="step-n">03</div><div class="step-ttl">Set your alerts</div><p class="step-dsc">Enable notification triggers for any condition combination. StarPath monitors every site continuously.</p></div>
+    <div class="step-card"><div class="step-n">04</div><div class="step-ttl">Go stargazing</div><p class="step-dsc">Head out knowing you picked the best possible night at the best site — no guesswork, no wasted trips.</p></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<div class="tech-band">
+  <div class="tech-inner">
+    <div class="tech-ey">Open-source tech stack · zero licensing cost</div>
+    <div class="tech-pills">
+      <div class="tp"><div class="tp-dot" style="background:#4A90E2;"></div>Leaflet.js + CartoDB Positron</div>
+      <div class="tp"><div class="tp-dot" style="background:var(--teal);"></div>Open-Meteo API</div>
+      <div class="tp"><div class="tp-dot" style="background:var(--amber);"></div>SunCalc.js</div>
+      <div class="tp"><div class="tp-dot" style="background:var(--purple-l);"></div>NASA Black Marble VIIRS</div>
+      <div class="tp"><div class="tp-dot" style="background:var(--teal);"></div>NARIT database — 63 sites</div>
+      <div class="tp"><div class="tp-dot" style="background:var(--t3);"></div>GitHub Pages / Vercel</div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-brand"><div class="nav-orb" style="width:24px;height:24px;font-size:11px;">✦</div><span class="footer-name">Star<span>Path</span> Thailand</span></div>
+  <p class="footer-copy">Dark sky decision platform for Thai astrophotography &amp; astrotourism</p>
+  <p class="footer-tag">Powered by NARIT data · Open-Meteo · NASA Black Marble · SunCalc.js</p>
+</footer>
+
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/astronomy.js"></script>
+<!-- SunCalc.js — real moon phase calculations -->
+<script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.min.js"></script>
+<script src="js/landing.js"></script>
+</body>
+</html>

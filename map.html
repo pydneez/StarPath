@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StarPath Thailand — Dark Sky Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet" href="css/shared.css"/>
+  <link rel="stylesheet" href="css/map.css"/>
+</head>
+<body>
+<div class="map-page">
+
+  <!-- NAV -->
+  <nav class="nav" style="position:relative;flex-shrink:0;">
+    <a class="nav-brand" href="index.html">
+      <div class="nav-orb">✦</div>
+      <span class="nav-name">Star<span>Path</span> Thailand</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="index.html#scores">Scores</a></li>
+      <li><a href="index.html#triggers">Alerts</a></li>
+      <li><a href="index.html#how">How it works</a></li>
+    </ul>
+    <a class="nav-map-btn" href="index.html" style="background:var(--surf2);color:var(--t2);border:1px solid var(--bdr2);">← Back to Home</a>
+  </nav>
+
+  <!-- MAP TOPBAR -->
+  <div class="map-topbar">
+
+    <!-- Date -->
+    <div class="date-ctrl">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <label for="date-input">Date</label>
+      <input type="date" id="date-input"/>
+    </div>
+
+    <!-- Moon chip (SunCalc data) -->
+    <div class="moon-chip">
+      <svg width="22" height="22" viewBox="0 0 22 22">
+        <circle cx="11" cy="11" r="9" fill="none" stroke="var(--amber)" stroke-width="1" opacity="0.25"/>
+        <path id="moon-path" fill="var(--amber)"/>
+      </svg>
+      <div class="moon-data">
+        <div class="moon-pct" id="moon-pct">—%</div>
+        <div class="moon-name" id="moon-name">—</div>
+      </div>
+      <div class="moon-times">
+        <div class="moon-time" id="moon-rise">↑ —:—</div>
+        <div class="moon-time" id="moon-set">↓ —:—</div>
+      </div>
+    </div>
+
+    <!-- Condition badge -->
+    <div class="cond-pill" id="cond-pill">
+      <div class="cond-dot"></div>
+      <span id="cond-text">Loading…</span>
+    </div>
+
+    <!-- Data status indicators -->
+    <div class="data-status-row">
+      <div class="status-item" title="Cloud cover data">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26C16.24 7.19 13.8 5 11 5 7.69 5 5 7.69 5 11H4.92A3 3 0 005 17h13a3 3 0 000-6z"/></svg>
+        <span class="status-icon" id="status-cloud" style="color:var(--amber)" title="Cloud: loading">⟳</span>
+      </div>
+      <div class="status-item" title="Bortle/light pollution data">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <span class="status-icon" id="status-bortle" style="color:var(--amber)" title="Bortle: loading">⟳</span>
+      </div>
+    </div>
+
+    <div class="tb-gap"></div>
+
+    <!-- Light Pollution overlay toggle -->
+    <button class="lp-toggle-btn" id="lp-toggle-btn"
+            onclick="toggleLightPollution()"
+            title="Show light pollution overlay">
+      <div class="lp-dot"></div>
+      Light Pollution
+    </button>
+
+    <!-- Legend -->
+    <button class="leg-btn" onclick="toggleLegend()">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      Legend
+    </button>
+  </div>
+
+  <!-- MAIN ROW -->
+  <div class="main-row">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sb-top">
+        <div class="sb-search">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" id="search-input" placeholder="Search sites or province…" oninput="onSearch(this.value)"/>
+        </div>
+      </div>
+      <div style="padding:8px 11px 0;">
+        <div class="chip-row">
+          <button class="chip on"  onclick="setFilter('all',this)">All</button>
+          <button class="chip"     onclick="setFilter('national_park',this)">Park</button>
+          <button class="chip"     onclick="setFilter('private',this)">Private</button>
+          <button class="chip"     onclick="setFilter('community',this)">Community</button>
+          <button class="chip"     onclick="setFilter('suburban',this)">Suburban</button>
+        </div>
+      </div>
+      <div class="tonight-box">
+        <div class="tn-label">Tonight's overview</div>
+        <div class="tn-grid">
+          <div class="tn-m"><div class="tn-val" id="tn-moon"  style="color:var(--amber)">—%</div><div class="tn-lbl">Moon lit</div></div>
+          <div class="tn-m"><div class="tn-val" id="tn-cloud" style="color:var(--purple-l)">—%</div><div class="tn-lbl">Avg Cloud</div></div>
+          <div class="tn-m"><div class="tn-val" id="tn-best"  style="color:var(--hi)">—</div><div class="tn-lbl">Best Score</div></div>
+        </div>
+      </div>
+      <div class="sb-heading">Sites — ranked by tonight's score</div>
+      <div class="site-list" id="site-list"></div>
+    </div>
+
+    <!-- MAP PANE -->
+    <div class="map-pane">
+      <div id="the-map"></div>
+
+      <!-- Legend overlay -->
+      <div class="map-legend" id="map-legend">
+        <div class="leg-ttl">Score Indicator</div>
+        <div class="leg-row"><div class="leg-dot" style="border-color:var(--hi);background:var(--hi-dim);"></div><span>70–100 · Excellent</span></div>
+        <div class="leg-row"><div class="leg-dot" style="border-color:var(--md);background:var(--md-dim);"></div><span>40–69 · Fair</span></div>
+        <div class="leg-row"><div class="leg-dot" style="border-color:var(--lo);background:var(--lo-dim);"></div><span>0–39 · Poor</span></div>
+      </div>
+
+      <!-- Detail panel -->
+      <div class="detail-panel" id="detail-panel">
+        <button class="dp-close" onclick="closePanel()" title="Close">✕</button>
+        <div id="dp-content"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- SunCalc.js — real moon phase calculations -->
+<script src="https://cdn.jsdelivr.net/npm/suncalc@1.9.0/suncalc.min.js"></script>
+<script src="js/data.js"></script>
+<script src="js/astronomy.js"></script>
+<script src="js/map.js"></script>
+</body>
+</html>

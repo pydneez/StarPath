@@ -1,0 +1,200 @@
+/* ============================================================
+   shared.css — StarPath Thailand
+   High-contrast dark theme — all text meets WCAG AA.
+   ============================================================ */
+
+:root {
+  /* ── Backgrounds ─────────────────────────────────────── */
+  --bg:        #07071C;
+  --bg2:       #0C0C28;
+  --surf:      #131336;
+  --surf2:     #1A1A48;
+  --surf3:     #22225A;
+
+  /* ── Borders (much more visible) ────────────────────── */
+  --bdr:       rgba(160,140,255,0.18);
+  --bdr2:      rgba(160,140,255,0.32);
+  --bdr3:      rgba(160,140,255,0.48);
+
+  /* ── Brand ───────────────────────────────────────────── */
+  --purple:    #8B7FF8;
+  --purple-l:  #C4BAFF;
+  --purple-dim:rgba(139,127,248,0.16);
+  --purple-glow:rgba(139,127,248,0.35);
+
+  /* ── Data colours ────────────────────────────────────── */
+  --amber:     #FBB130;
+  --amber-dim: rgba(251,177,48,0.16);
+  --teal:      #10B981;
+
+  /* ── Score palette (high contrast on dark) ───────────── */
+  --hi:        #4ADE80;   /* ≥70  excellent — bright green */
+  --hi-dim:    rgba(74,222,128,0.14);
+  --hi-bdr:    rgba(74,222,128,0.38);
+  --md:        #FCD34D;   /* 40–69 fair     — bright yellow */
+  --md-dim:    rgba(252,211,77,0.14);
+  --md-bdr:    rgba(252,211,77,0.38);
+  --lo:        #FC8181;   /* <40  poor      — bright red */
+  --lo-dim:    rgba(252,129,129,0.12);
+  --lo-bdr:    rgba(252,129,129,0.35);
+
+  /* ── Text (all significantly brighter) ──────────────── */
+  --t1:        #F4F0FF;   /* primary — near white with purple tint */
+  --t2:        #C8BFEE;   /* secondary — was #9488CC, now much brighter */
+  --t3:        #8B83BB;   /* tertiary — was #524A7A, lifted by 35% */
+
+  /* ── Type dots ───────────────────────────────────────── */
+  --dot-np:    #4ADE80;
+  --dot-prv:   #C4BAFF;
+  --dot-com:   #38BDF8;
+  --dot-sub:   #FDA472;
+
+  /* ── Typography ──────────────────────────────────────── */
+  --fd: 'Syne',            sans-serif;
+  --fb: 'DM Sans',         sans-serif;
+  --fm: 'JetBrains Mono',  monospace;
+
+  /* ── Layout ──────────────────────────────────────────── */
+  --nav-h: 58px;
+  --r:  10px;
+  --rs: 6px;
+}
+
+/* ── Reset ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html  { scroll-behavior: smooth; }
+body  { font-family: var(--fb); background: var(--bg); color: var(--t1); line-height: 1.6; overflow-x: hidden; }
+
+::-webkit-scrollbar       { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surf3); border-radius: 2px; }
+* { scrollbar-width: thin; scrollbar-color: var(--surf3) transparent; }
+
+/* ── NAV ─────────────────────────────────────────────────── */
+.nav {
+  position: sticky; top: 0; z-index: 900;
+  height: var(--nav-h);
+  background: rgba(7,7,28,0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--bdr2);
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  gap: 1rem;
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 9px;
+  text-decoration: none; flex-shrink: 0;
+}
+.nav-orb {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--purple-l) 0%, var(--purple) 55%, transparent 80%);
+  box-shadow: 0 0 18px var(--purple-glow);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+.nav-name {
+  font-family: var(--fd); font-size: 16px; font-weight: 700;
+  color: var(--t1); letter-spacing: 0.01em;
+}
+.nav-name span { color: var(--purple-l); }
+
+.nav-links { display: flex; gap: 1.5rem; list-style: none; }
+.nav-links a {
+  font-size: 13.5px; font-weight: 500;
+  color: var(--t2); text-decoration: none;
+  cursor: pointer; transition: color .2s;
+}
+.nav-links a:hover { color: var(--t1); }
+
+/* Language toggle */
+.lang-toggle {
+  background: var(--surf2); color: var(--t2);
+  border: 1px solid var(--bdr2); border-radius: var(--rs);
+  padding: 5px 12px; font-family: var(--fm); font-size: 11px;
+  cursor: pointer; text-transform: uppercase; letter-spacing: .07em;
+  transition: all .2s; white-space: nowrap;
+}
+.lang-toggle:hover { border-color: var(--purple-l); color: var(--t1); }
+
+/* Map button */
+.nav-map-btn {
+  background: var(--purple); color: #fff; border: none;
+  padding: 7px 18px; border-radius: var(--rs);
+  font-family: var(--fb); font-size: 13px; font-weight: 600;
+  cursor: pointer; text-decoration: none; display: inline-flex;
+  align-items: center; gap: 6px; flex-shrink: 0;
+  transition: background .2s, transform .15s, box-shadow .2s;
+}
+.nav-map-btn:hover {
+  background: #7A6DE4; transform: translateY(-1px);
+  box-shadow: 0 4px 18px var(--purple-glow);
+}
+
+/* ── FOOTER ──────────────────────────────────────────────── */
+.footer {
+  background: var(--bg); border-top: 1px solid var(--bdr2);
+  padding: 2.5rem 2rem; text-align: center;
+}
+.footer-brand {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; margin-bottom: 8px;
+}
+.footer-name { font-family: var(--fd); font-size: 15px; font-weight: 700; color: var(--t1); }
+.footer-name span { color: var(--purple-l); }
+.footer-copy  { font-size: 13px; color: var(--t2); margin-bottom: 4px; }
+.footer-tag   { font-size: 12px; color: var(--t3); }
+
+/* ── DIVIDER ─────────────────────────────────────────────── */
+.divider { height: 1px; background: var(--bdr2); }
+
+/* ── UTILITIES ───────────────────────────────────────────── */
+.eyebrow {
+  font-size: 11px; font-weight: 600; color: var(--purple-l);
+  letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px;
+}
+.sec-title {
+  font-family: var(--fd); font-size: clamp(24px,3.5vw,36px);
+  font-weight: 700; color: var(--t1); margin-bottom: 7px; letter-spacing: -0.01em;
+}
+.sec-sub {
+  font-size: 15px; color: var(--t2); font-weight: 400;
+  max-width: 540px; line-height: 1.75; margin-bottom: 2.5rem;
+}
+
+.chip-row { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip {
+  background: transparent; border: 1px solid var(--bdr2);
+  border-radius: 20px; padding: 4px 12px;
+  font-family: var(--fm); font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: .07em;
+  color: var(--t2); cursor: pointer; transition: all .15s;
+}
+.chip:hover  { border-color: var(--purple-l); color: var(--t1); }
+.chip.on     { background: var(--purple-dim); border-color: var(--purple-l); color: var(--purple-l); }
+
+/* Score badge circle */
+.score-badge {
+  width: 42px; height: 42px; border-radius: 50%; border: 2.5px solid;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--fm); font-size: 12px; font-weight: 600;
+  flex-shrink: 0;
+}
+.score-badge.hi { border-color: var(--hi); color: var(--hi); background: var(--hi-dim); }
+.score-badge.md { border-color: var(--md); color: var(--md); background: var(--md-dim); }
+.score-badge.lo { border-color: var(--lo); color: var(--lo); background: var(--lo-dim); }
+
+/* Type dot */
+.type-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.type-dot.national_park { background: var(--dot-np); }
+.type-dot.private       { background: var(--dot-prv); }
+.type-dot.community     { background: var(--dot-com); }
+.type-dot.suburban      { background: var(--dot-sub); }
+
+@keyframes fadeUp   { from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)} }
+@keyframes pulse    { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.8)} }
+
+@media(max-width:720px) {
+  .nav { padding: 0 1rem; }
+  .nav-links { display: none; }
+}
