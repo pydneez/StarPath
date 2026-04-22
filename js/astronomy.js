@@ -254,9 +254,48 @@ window.Astro = (() => {
   // The empty date field (//) tells GIBS to return the latest composite.
   // Extension is .png (not .jpg — .jpg gives 400/404 errors).
   const GIBS_HOST      = 'https://gibs-a.earthdata.nasa.gov'; // fixed CDN node for pixel sampling
-  const GIBS_TILE_PATH = '/wmts/epsg3857/best/VIIRS_Black_Marble/default//GoogleMapsCompatible_Level8';
-
+  // const GIBS_TILE_PATH = '/wmts/epsg3857/best/VIIRS_Black_Marble/default//GoogleMapsCompatible_Level8';
+// Using 2024-01-11 (a New Moon) to avoid lunar glare in our radiance proxy
+  const GIBS_TILE_PATH_1 = '/wmts/epsg3857/best/VIIRS_SNPP_DayNightBand_At_Sensor_Radiance/default/'
+  const GIBS_TILE_PATH_2 =  '/GoogleMapsCompatible_Level8';  
   const GIBS_ZOOM = 6; // z6: ~625 km tile width, ~10 km/pixel — better accuracy for Thailand
+
+  
+  function _calculateSQMFromRadiance(pixelData) {
+    let intensitySum = 0;
+    
+    // Step 1: Average the 3x3 neighborhood (9 pixels)
+    // Since GIBS maps radiance to 8-bit grayscale, R=G=B. 
+    // We sample the R channel (index i) as the radiance proxy.
+    for (let i = 0; i < pixelData.length; i += 4) {
+        intensitySum += pixelData[i]; 
+    }
+    const radianceProxy = intensitySum / 9;
+
+    // Step 2: Implement the Scientific Logarithmic Formula
+    // SQM = 21.58 - 2.5 * log10(radiance_proxy + 0.1)
+    const sqm = 21.58 - 2.5 * Math.log10(radianceProxy + 0.1);
+    
+    return {
+        sqm: parseFloat(sqm.toFixed(2)),
+        radianceProxy: Math.round(radianceProxy)
+    };
+  }
+
+  /**
+   * Maps SQM to Bortle Class based on Cinzano Scale Midpoints
+   */
+  function _getBortleFromSQM(sqm) {
+      if (sqm >= 21.75) return 1;
+      if (sqm >= 21.60) return 2;
+      if (sqm >= 21.30) return 3;
+      if (sqm >= 20.80) return 4;
+      if (sqm >= 20.10) return 5;
+      if (sqm >= 19) return 6;
+      if (sqm >= 18) return 7;
+      if (sqm >= 17) return 8;
+      return 9; // Representing 6+ for anything below 19.0-20.1
+  }
 
   // Convert WGS84 → tile XY at a given zoom (standard Web Mercator / XYZ convention)
   function _latLngToTile(lat, lng, z) {
@@ -276,27 +315,6 @@ window.Astro = (() => {
     return { px: Math.max(1, Math.min(254, px)), py: Math.max(1, Math.min(254, py)) };
   }
 
-  // VIIRS Black Marble luminance → Bortle class
-  // Calibrated against NARIT SQM measurements and LP Atlas data for Thailand.
-  // Higher luminance = more light pollution = higher Bortle class.
-  function _luminanceToBortle(lum) {
-    if (lum <   4) return 1; // Pristine: IFN & zodiacal band visible
-    if (lum <  10) return 2; // Truly dark rural: Milky Way casts shadows
-    if (lum <  20) return 3; // Rural: MW structure and colour clearly visible
-    if (lum <  40) return 4; // Rural/suburban: Milky Way easily seen, faint glow
-    if (lum <  80) return 5; // Suburban: MW visible, light dome on horizon
-    if (lum < 130) return 6; // Bright suburban: MW only visible above 45°
-    if (lum < 185) return 7; // Suburban/urban: MW barely visible
-    if (lum < 230) return 8; // City: Milky Way not visible
-    return 9;                 // Inner city: entire sky strongly illuminated
-  }
-
-  // Approximate SQM from Bortle class (Cinzano scale midpoints)
-  function _bortleToSQM(bortle) {
-    const table = [0, 22.0, 21.7, 21.3, 20.8, 20.0, 18.9, 18.0, 17.0, 16.0];
-    return table[Math.min(9, Math.max(1, bortle))] || 20.0;
-  }
-
   async function fetchBortleForSite(site) {
     const cacheKey = `sp_b3_${site.id}`;
 
@@ -313,13 +331,27 @@ window.Astro = (() => {
     return _fetchFromNASAGIBS(site);
   }
 
+  function getSafeRecentGibsDate() {
+  const d = new Date();
+  // Subtract 3 days (3 * 24 * 60 * 60 * 1000 milliseconds) to ensure the tile is processed
+  d.setTime(d.getTime() - (3 * 86400000)); 
+  
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  
+  return `${year}-${month}-${day}`;
+}
+
   // Core NASA GIBS pixel-sampling routine
   function _fetchFromNASAGIBS(site) {
     const { lat, lng } = site;
     const z     = GIBS_ZOOM;
     const { x, y } = _latLngToTile(lat, lng, z);
     const { px, py } = _latLngToPixel(lat, lng, z, x, y);
-    const url   = `${GIBS_HOST}${GIBS_TILE_PATH}/${z}/${y}/${x}.png`;
+    const date = getSafeRecentGibsDate();
+    const url  = `${GIBS_HOST}${GIBS_TILE_PATH_1}${date}${GIBS_TILE_PATH_2}/${z}/${y}/${x}.png`;
+    //const url   = `${GIBS_HOST}${GIBS_TILE_PATH_1}$${GIBS_TILE_PATH_2}/${z}/${y}/${x}.png`;
 
     return new Promise((resolve) => {
       const img = new Image();
@@ -332,18 +364,13 @@ window.Astro = (() => {
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, 256, 256);
 
-          // Sample 3×3 neighbourhood for stability (avoids single noisy pixel)
+          // Sample 3×3 neighbourhood for stability
           const id  = ctx.getImageData(px - 1, py - 1, 3, 3).data;
-          let lumSum = 0;
-          for (let i = 0; i < id.length; i += 4) {
-            lumSum += 0.299 * id[i] + 0.587 * id[i + 1] + 0.114 * id[i + 2];
-          }
-          const luminance = lumSum / 9;
-
-          const bortle = _luminanceToBortle(luminance);
-          const sqm    = _bortleToSQM(bortle);
-          const result = { bortle, sqm, source: 'nasa_gibs', luminance: Math.round(luminance) };
-
+          // Calculate SQM and Bortle using the physical radiance proxy
+          const { sqm, radianceProxy } = _calculateSQMFromRadiance(id);
+          const bortle = _getBortleFromSQM(sqm);
+          
+          const result = { bortle, sqm, source: 'nasa_gibs', radiance: radianceProxy };
           _bortleData[site.id] = result;
           try { sessionStorage.setItem(`sp_b3_${site.id}`, JSON.stringify(result)); } catch (e) {}
           resolve(result);
@@ -425,7 +452,10 @@ window.Astro = (() => {
     else if (maxInfl > 50)   bortle = 4;
     else if (maxInfl > 5)    bortle = 3;
     else                     bortle = 2;
-    const sqm = _bortleToSQM(bortle);
+    
+    const fallbackSQMs = { 1: 21.8, 2: 21.65, 3: 21.45, 4: 21.05, 5: 20.45, 6: 19.5, 7: 18.5, 8: 17.5, 9: 16.5 };
+    const sqm = fallbackSQMs[bortle] || 20.0;
+
     return { bortle, sqm, source: 'estimate' };
   }
 
