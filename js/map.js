@@ -13,6 +13,7 @@ let leafletMap;
 const markerRefs = {}; // siteId → Leaflet marker
 let lpLayer      = null;
 let lpVisible    = false;
+let bortleLoadSeq = 0;
 
 /* ── HELPERS ─────────────────────────────────────────────── */
 function todayStr() {
@@ -25,8 +26,8 @@ function parseLocalDate(str) {
 }
 function scoreForSite(site) {
   const moon   = Astro.getMoon(currentDate);
-  const cloud  = Astro.getCloudCover(site.id, 0);
-  const bData  = Astro.getBortle(site.id);
+  const cloud  = Astro.getCloudCover(site.id, currentDate);
+  const bData  = Astro.getBortle(site.id, currentDate);
   const bortle = bData ? bData.bortle : 4;
   return Astro.calcScore(moon.illum, cloud, bortle);
 }
@@ -45,7 +46,7 @@ function updateTopbar() {
   const scores = DARKSKY_SITES.map(s => scoreForSite(s));
   const best   = Math.max(...scores);
   const avgCl  = Math.round(
-    DARKSKY_SITES.map(s => Astro.getCloudCover(s.id, 0)).reduce((a,b)=>a+b,0) / DARKSKY_SITES.length
+    DARKSKY_SITES.map(s => Astro.getCloudCover(s.id, currentDate)).reduce((a,b)=>a+b,0) / DARKSKY_SITES.length
   );
 
   document.getElementById('tn-moon').textContent  = moon.pct + '%';
@@ -158,7 +159,7 @@ function buildMarker(site) {
   const html  = `<div class="mm ${cls}${isSel ? ' sel' : ''}" id="mm-${site.id}">${sc}</div>`;
   const icon  = L.divIcon({ html, className: '', iconSize: [40, 46], iconAnchor: [20, 46] });
 
-  const bData  = Astro.getBortle(site.id);
+  const bData  = Astro.getBortle(site.id, currentDate);
   const bTxt   = bData ? ` · B${bData.bortle}` : '';
 
   return L.marker([site.lat, site.lng], { icon, zIndexOffset: isSel ? 1000 : 0 })
@@ -180,7 +181,7 @@ function refreshMarkerScores() {
   DARKSKY_SITES.forEach(site => {
     const sc    = scoreForSite(site);
     const cls   = Astro.scoreClass(sc);
-    const bData = Astro.getBortle(site.id);
+    const bData = Astro.getBortle(site.id, currentDate);
     const bTxt  = bData ? ` · B${bData.bortle}` : '';
 
     // Update marker circle (text + colour class)
@@ -267,8 +268,8 @@ function selectSite(id) {
 
 function renderPanel(site) {
   const moon   = Astro.getMoon(currentDate);
-  const cloud  = Astro.getCloudCover(site.id, 0);
-  const bData  = Astro.getBortle(site.id);
+  const cloud  = Astro.getCloudCover(site.id, currentDate);
+  const bData  = Astro.getBortle(site.id, currentDate);
   const bortle = bData ? bData.bortle : 4;
   const sqm    = bData ? bData.sqm    : null;
   const bSrc   = bData ? bData.source : 'loading';
@@ -455,7 +456,7 @@ function renderPanel(site) {
       <div class="fac-wrap" style="margin-bottom:6px;">
         <span class="fac">🌙 SunCalc.js moon</span>
         <span class="fac">☁️ Open-Meteo cloud</span>
-        <span class="fac">💡 LP Atlas Bortle</span>
+        <span class="fac">💡 NASA GIBS radiance (${bData?.gibsDate || Astro.getRadianceDateForForecast(currentDate)})</span>
       </div>
       <div class="fac-wrap">
         <a class="fac-link" href="${site.url}" target="_blank" rel="noopener">View on NARIT ↗</a>
@@ -538,41 +539,72 @@ function refresh() {
 /* ── DATA LOADING ────────────────────────────────────────── */
 async function loadAllData() {
   // 1. Fetch Open-Meteo cloud cover for all sites
+  // Pass currentDate so the correct endpoint is chosen:
+  //   past dates   → Open-Meteo archive API
+  //   today/future → Open-Meteo forecast API (16-day window)
+  //   >+15 days    → seasonal fallback (no fetch performed)
   setDataStatus('cloud', 'loading');
   try {
-    await Astro.fetchAllWeather(DARKSKY_SITES);
-    setDataStatus('cloud', 'live');
-    refresh(); // re-render with real cloud data
+    const weatherResult = await Astro.fetchAllWeather(DARKSKY_SITES, currentDate);
+    setDataStatus('cloud', weatherResult ? 'live' : 'est');
+    refresh();
   } catch (e) {
     setDataStatus('cloud', 'error');
   }
 
-  // 2. Fetch Bortle for all sites progressively
+  // 2. Fetch Bortle for all sites progressively via NASA GIBS tile sampling.
+  // onProgress fires once per site (up to 63 times) as each tile resolves.
+  // Without debouncing, each arrival triggers a full renderList + updateTopbar,
+  // causing up to 63 rapid DOM rebuilds — the "rendering loop".
+  // Debounce: refreshSingleMarker runs immediately per site (cheap — one marker),
+  // while renderList + updateTopbar are batched into one call 150ms after the
+  // last update arrives, so the list re-sorts smoothly once per wave of arrivals.
   setDataStatus('bortle', 'loading');
-  await Astro.fetchAllBortle(DARKSKY_SITES, (updatedSiteId) => {
+  const seq = ++bortleLoadSeq;
+  let _bortleDebounce = null;
+  let _panelPending   = false;
+
+  await Astro.fetchAllBortle(DARKSKY_SITES, currentDate, (updatedSiteId) => {
+    if (seq !== bortleLoadSeq) return; // stale — a newer date-change is in flight
+
+    // Cheap per-site update: rebuild just this one marker
     refreshSingleMarker(updatedSiteId);
-    // If this site's panel is open, re-render it
-    if (selectedId === updatedSiteId) {
-      const site = DARKSKY_SITES.find(s => s.id === updatedSiteId);
-      if (site) renderPanel(site);
-    }
-    renderList(); // keep list sorted by updated scores
-    updateTopbar();
+
+    // Track whether the open detail panel needs re-rendering
+    if (selectedId === updatedSiteId) _panelPending = true;
+
+    // Debounced bulk update: fires 150 ms after the last tile settles
+    clearTimeout(_bortleDebounce);
+    _bortleDebounce = setTimeout(() => {
+      if (seq !== bortleLoadSeq) return;
+      renderList();
+      updateTopbar();
+      if (_panelPending) {
+        const site = DARKSKY_SITES.find(s => s.id === selectedId);
+        if (site) renderPanel(site);
+        _panelPending = false;
+      }
+    }, 150);
   });
+
+  if (seq !== bortleLoadSeq) return;
+  clearTimeout(_bortleDebounce); // cancel any pending debounce
   setDataStatus('bortle', 'live');
-  refresh(); // final full refresh when all bortle done
+  refresh(); // single clean final render with all Bortle data present
 }
 
 function setDataStatus(type, status) {
   const el = document.getElementById(`status-${type}`);
   if (!el) return;
-  const icons = { loading: '⟳', live: '●', error: '!' };
-  const colors = { loading: 'var(--amber)', live: 'var(--hi)', error: 'var(--lo)' };
+  // 'est' = seasonal estimate (no real data available, e.g. date >+15 days)
+  const icons  = { loading: '⟳', live: '●', est: '~', error: '!' };
+  const colors = { loading: 'var(--amber)', live: 'var(--hi)', est: 'var(--t3)', error: 'var(--lo)' };
   el.textContent = icons[status] || '?';
   el.style.color  = colors[status] || 'var(--t3)';
   el.title = {
     loading: `${type} data loading…`,
-    live:    `${type} data live`,
+    live:    `${type} live data`,
+    est:     `${type} seasonal estimate (date out of forecast range)`,
     error:   `${type} data unavailable`,
   }[status] || '';
 }
@@ -585,9 +617,12 @@ window.addEventListener('load', () => {
     input.addEventListener('change', function () {
       if (!this.value) return;
       currentDate = parseLocalDate(this.value);
-      // Clear weather cache on date change (different day = different data)
-      try { sessionStorage.removeItem('sp_weather'); } catch (e) {}
+      // Clear the in-memory weather cache so the new date triggers a fresh
+      // fetch (forecast or archive) rather than reusing data from the
+      // previously selected date.
+      Astro.clearWeatherCache();
       refresh();
+      loadAllData();
     });
   }
 
