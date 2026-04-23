@@ -295,10 +295,11 @@ function renderPanel(site) {
     : (bSrc === 'loading' ? 'Fetching…' : 'Estimated');
 
   // Bortle source badge
-  const srcBadge = bSrc === 'nasa_gibs' ? '<span class="src-live">● NASA</span>' :
-                   bSrc === 'lp_api'    ? '<span class="src-live">● LIVE</span>'      :
-                   bSrc === 'estimate'  ? '<span class="src-est">⚠ Est.</span>'       :
-                   bSrc === 'loading'   ? '<span class="src-est">Loading…</span>'     : '';
+  const srcBadge = bSrc === 'nasa_radiance' ? '<span class="src-live">● NASA </span>' :
+                   bSrc === 'nasa_gibs'    ? '<span class="src-live">● NASA </span>' :
+                   bSrc === 'lp_api'       ? '<span class="src-live">● LIVE</span>'      :
+                   bSrc === 'estimate'     ? '<span class="src-est">⚠ Est.</span>'       :
+                   bSrc === 'loading'      ? '<span class="src-est">Loading…</span>'     : '';
 
   const html = `
   <div class="dp-hero">
@@ -390,7 +391,7 @@ function renderPanel(site) {
     <div class="dp-sec">
       <div class="dp-sec-ttl">
         Light Pollution
-        ${bSrc === 'nasa_gibs' ? '<span class="data-badge live">NASA VIIRS Radiance</span>' : bSrc === 'lp_api' ? '<span class="data-badge live">VIIRS live</span>' : bSrc === 'estimate' ? '<span class="data-badge est">Position estimate</span>' : '<span class="data-badge est">Loading…</span>'}
+        ${bSrc === 'nasa_radiance' || bSrc === 'nasa_gibs' ? '<span class="data-badge live">● NASA</span>' : bSrc === 'lp_api' ? '<span class="data-badge live">VIIRS live</span>' : bSrc === 'estimate' ? '<span class="data-badge est">⚠ Position estimate</span>' : '<span class="data-badge est">Loading…</span>'}
       </div>
       <div class="dg">
         <div class="dg-item">
